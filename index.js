@@ -16,6 +16,26 @@ app.get("/try1", (req, res) => {
   res.json({ name: "Ted" });
 });
 
+app.get("/json-sales", (req, res) => {
+  const sales = [
+    {
+      name: "Bill",
+      age: 28,
+      id: "A001",
+    },
+    {
+      name: "Peter",
+      age: 32,
+      id: "A002",
+    },
+    {
+      name: "Carl",
+      age: 29,
+      id: "A003",
+    },
+  ];
+  res.json(sales);
+});
 //路由選擇，會以排序為優先，符合就會跳轉
 // app.get("/a.html", (req, res) => {
 //   res.send(`<h1>NO~~~~~</h1>`);
