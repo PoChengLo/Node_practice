@@ -6,7 +6,7 @@ const app = express();
 
 app.set("view engine", "ejs");
 
-// Top-lever MiddleWare
+// Top-level MiddleWare
 app.use(express.urlencoded({ extends: true }));
 
 //定義路由：1.接收的方式 2.路徑
