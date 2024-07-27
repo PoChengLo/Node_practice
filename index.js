@@ -2,10 +2,11 @@
 
 import express from "express";
 import multer from "multer";
-
-
+import upload from "./utils/upload-imgs.js";
+  
+  
 const app = express();
-const upload = multer({dest: "tmp_uploads/"});
+// const upload = multer({dest: "tmp_uploads/"});
 
 app.set("view engine", "ejs");
 
@@ -70,11 +71,17 @@ app.post("/try-post", (req, res) => {
   res.json(req.body);
 });
 
+// 單一檔案
 app.post("/try-upload", upload.single("avatar"), (req, res) => {
   res.json({
     file: req.file,
     body: req.body,
   });
+});
+
+// 複數檔案
+app.post("/try-uploads", upload.array("photos",12), (req, res) => {
+  res.json(req.files);
 });
 
 // **** 靜態內容資料夾 ****
