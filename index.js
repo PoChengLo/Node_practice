@@ -6,6 +6,9 @@ const app = express();
 
 app.set("view engine", "ejs");
 
+// Top-lever MiddleWare
+app.use(express.urlencoded({ extends: true }));
+
 //定義路由：1.接收的方式 2.路徑
 app.get("/", (req, res) => {
   // res.send(`<h1>HEEELLLLL~~~~~</h1>`);
@@ -50,9 +53,13 @@ app.get("/try-post-form", (req, res) => {
 });
 
 // middleware 中介軟體，中介函式
-const urlencodedParser = express.urlencoded({ extends: true });
+// const urlencodedParser = express.urlencoded({ extends: true });
 
-app.post("/try-post-form", [urlencodedParser] ,(req, res) => {
+// app.post("/try-post-form", [urlencodedParser] ,(req, res) => {
+//   res.json(req.body);
+// });
+
+app.post("/try-post-form" ,(req, res) => {
   res.json(req.body);
 });
 
