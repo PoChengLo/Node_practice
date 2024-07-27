@@ -70,7 +70,7 @@ app.post("/try-post", (req, res) => {
   res.json(req.body);
 });
 
-app.post("/try-upload", upload.single(), (req, res) => {
+app.post("/try-upload", upload.single(avatar), (req, res) => {
   res.json({
     file: req.file,
     body: req.body,
