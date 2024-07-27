@@ -34,7 +34,7 @@ app.get("/json-sales", (req, res) => {
       id: "A003",
     },
   ];
-  res.json(sales);
+  res.render("json-sales", { sales });
 });
 //路由選擇，會以排序為優先，符合就會跳轉
 // app.get("/a.html", (req, res) => {
