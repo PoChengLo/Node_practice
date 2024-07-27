@@ -12,6 +12,10 @@ app.get("/", (req, res) => {
   res.render("home", { name: "YOYO" });
 });
 
+app.get("/try1", (req, res) => {
+  res.json({ name: "Ted" });
+});
+
 //路由選擇，會以排序為優先，符合就會跳轉
 // app.get("/a.html", (req, res) => {
 //   res.send(`<h1>NO~~~~~</h1>`);
