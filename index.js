@@ -1,8 +1,11 @@
 // console.log(process.env.WEB_PORT);
 
 import express from "express";
+import multer from "multer";
+
 
 const app = express();
+const upload = multer({dest: "tmp_uploads/"});
 
 app.set("view engine", "ejs");
 
@@ -65,6 +68,13 @@ app.post("/try-post-form", (req, res) => {
 });
 app.post("/try-post", (req, res) => {
   res.json(req.body);
+});
+
+app.post("/try-upload", upload.single(), (req, res) => {
+  res.json({
+    file: req.file,
+    body: req.body,
+  });
 });
 
 // **** 靜態內容資料夾 ****
