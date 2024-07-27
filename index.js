@@ -41,6 +41,21 @@ app.get("/json-sales", (req, res) => {
 //   res.send(`<h1>NO~~~~~</h1>`);
 // });
 
+app.get("/try-qs", (req, res) => {
+  res.json(req.query);
+});
+
+app.get("/try-post-form", (req, res) => {
+  res.render("try-post-form");
+});
+
+// middleware 中介軟體，中介函式
+const urlencodedParser = express.urlencoded({ extends: true });
+
+app.post("/try-post-form", [urlencodedParser] ,(req, res) => {
+  res.json(req.body);
+});
+
 // **** 靜態內容資料夾 ****
 app.use(express.static("public"));
 app.use("/bootstrap", express.static("node_modules/bootstrap/dist"));
