@@ -1,0 +1,18 @@
+
+GET http://localhost:3001
+
+### 分隔線
+
+POST http://localhost:3001/try-post
+Content-Ttype: applictaion/x-wwww-form-urlencoded
+
+name=YOYO&gender=BOY
+
+###
+
+POST http://localhost:3001/try-post
+Content-Ttype: applictaion/x-wwww-form-urlencoded
+
+{"name":"YOYO","age":"BOY"}
+
+###

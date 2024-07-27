@@ -1,25 +1,29 @@
-<%- include('parts/html-head') %>
-<%- include('parts/html-navbar') %>
+<%- include('parts/html-head') %> <%- include('parts/html-navbar') %>
 <div class="container">
-<div class="row">
-  <div class="col">
-    <form method="post">
-      <div class="mb-3" >
-        <label for="email" class="form-label">Email address</label>
-        <input type="text" class="form-control" name="email" id="email" aria-describedby="emailHelp">
-        <div id="emailHelp" class="form-text"></div>
-      </div>
-      <div class="mb-3">
-        <label for="password" class="form-label">Password</label>
-        <input type="password" class="form-control" id="email" name="password">
-      </div>
+  <div class="row">
+    <div class="col">
+      <form method="post" enctype="application/x-www-form-urlencoded">
+        <div class="mb-3">
+          <label for="email" class="form-label">Email address</label>
+          <input type="text" class="form-control" name="email" id="email" />
+          <div class="form-text">
+            <%= typeof email==='undefined'? '': email %>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label for="password" class="form-label">Password</label>
+          <input
+            type="password"
+            class="form-control"
+            id="email"
+            name="password"
+          />
+          <div class="form-text"><%= locals.password ? password : '' %></div>
+        </div>
 
-      <button type="submit" class="btn btn-primary">Submit</button>
-    </form>
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </form>
+    </div>
   </div>
 </div>
-</div>
-<%- include('parts/html-script') %>
-<%- include('parts/html-tail') %>
-
-
+<%- include('parts/html-script') %> <%- include('parts/html-tail') %>

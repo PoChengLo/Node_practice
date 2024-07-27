@@ -7,7 +7,8 @@ const app = express();
 app.set("view engine", "ejs");
 
 // Top-level MiddleWare
-app.use(express.urlencoded({ extends: true }));
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 //定義路由：1.接收的方式 2.路徑
 app.get("/", (req, res) => {
@@ -54,12 +55,15 @@ app.get("/try-post-form", (req, res) => {
 
 // middleware 中介軟體，中介函式
 // const urlencodedParser = express.urlencoded({ extends: true });
-
 // app.post("/try-post-form", [urlencodedParser] ,(req, res) => {
 //   res.json(req.body);
 // });
 
-app.post("/try-post-form" ,(req, res) => {
+app.post("/try-post-form", (req, res) => {
+  // res.json(req.body);
+  res.render("try-post-form", req.body);
+});
+app.post("/try-post", (req, res) => {
   res.json(req.body);
 });
 
