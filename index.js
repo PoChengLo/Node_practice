@@ -4,10 +4,18 @@ import express from "express";
 
 const app = express();
 
+app.set("view engine", "ejs");
+
 //定義路由：1.接收的方式 2.路徑
 app.get("/", (req, res) => {
-  res.send(`<h1>HEEELLLLL~~~~~</h1>`);
+  // res.send(`<h1>HEEELLLLL~~~~~</h1>`);
+  res.render("home", { name: "YOYO" });
 });
+
+//路由選擇，會以排序為優先，符合就會跳轉
+// app.get("/a.html", (req, res) => {
+//   res.send(`<h1>NO~~~~~</h1>`);
+// });
 
 // **** 靜態內容資料夾 ****
 app.use(express.static("public"));
