@@ -4,13 +4,16 @@ import express from "express";
 import multer from "multer";
 import session from "express-session";
 import moment from "moment-timezone";
+import mysql_session from "express-mysql-session";
 import upload from "./utils/upload-imgs.js";
 import admin2Router from "./routes/admin2.js";
-import "./utils/connect-mysql.js";
+import db from "./utils/connect-mysql.js";
 
 
 const app = express();
 // const upload = multer({dest: "tmp_uploads/"});
+const MysqlStore = mysql_session(session);
+const sessionStore = new MysqlStore({}, db);
 
 app.set("view engine", "ejs");
 
@@ -22,9 +25,10 @@ app.use(
     saveUninitialized: false,
     resave: false,
     secret: "030[]sdlsldmcijaqopkdqjo2=;",
-    cookie: {
-      maxAge: 1_800_000, // 30 分鐘 ， _ 沒有意義
-    },
+    store: sessionStore,
+    // cookie: {
+    //   maxAge: 1_800_000, // 30 分鐘 ， _ 沒有意義
+    // },
   })
 );
 
@@ -160,6 +164,15 @@ app.get("/try-moment", (req, res) => {
     m1z: m1.tz("Europe/London").format(fm),
     m2z: m2.tz("Europe/London").format(fm),
   });
+});
+
+app.get("/try-db", async (req, res) => {
+  const sql = "SELECT * FROM PRODLIST LIMIT 3";
+
+  const [rows, fields] = await db.query(sql);
+  // rows 讀取的資料
+  // fields 表的欄位定義相關資料
+  res.json({ rows, fields });
 });
 
 // **** 靜態內容資料夾 ****
