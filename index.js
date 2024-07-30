@@ -2,6 +2,8 @@
 
 import express from "express";
 import multer from "multer";
+import session from "express-session";
+import moment from "moment-timezone";
 import upload from "./utils/upload-imgs.js";
 import admin2Router from "./routes/admin2.js";
 
@@ -13,6 +15,16 @@ app.set("view engine", "ejs");
 // Top-level MiddleWare
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(
+  session({
+    saveUninitialized: false,
+    resave: false,
+    secret: "030[]sdlsldmcijaqopkdqjo2=;",
+    cookie: {
+      maxAge: 1_800_000, // 30 分鐘 ， _ 沒有意義
+    },
+  })
+);
 
 // Top-level MiddleWare 自訂
 app.use((req, res, next) => {
@@ -117,6 +129,34 @@ app.use("/admins", admin2Router);
 // 測試表單送出
 app.post("/try-post-form2", upload.none(), (req, res) => {
   res.json(req.body);
+});
+
+// session 方式儲存
+app.get("/try-sess", (req, res) => {
+  req.session.my_var ||= 0;
+  // req.session.my_var = req.session.my_var || 0;
+  req.session.my_var++;
+
+  res.json(req.session);
+});
+
+//res.render("json-sales", { sales });
+app.get("/try-moment", (req, res) => {
+  const fm = "YYYY-MM-DD HH:mm:ss";
+  const m1 = moment();
+  const m2 = moment("2024-02-29");
+  const m3 = moment("2023-02-29");
+  res.json({
+    // 取得當下時間的 moment 物件
+    m1: m1.format(fm),
+    m2: m2.format(fm),
+    m3: m3.format(fm),
+    m1v: m1.isValid(),
+    m2v: m2.isValid(),
+    m3v: m3.isValid(),
+    m1z: m1.tz("Europe/London").format(fm),
+    m2z: m2.tz("Europe/London").format(fm),
+  });
 });
 
 // **** 靜態內容資料夾 ****
