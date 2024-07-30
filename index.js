@@ -8,16 +8,19 @@ import mysql_session from "express-mysql-session";
 import upload from "./utils/upload-imgs.js";
 import admin2Router from "./routes/admin2.js";
 import db from "./utils/connect-mysql.js";
-
+import cors from "cors";
 
 const app = express();
 // const upload = multer({dest: "tmp_uploads/"});
+
+//存放 session在資料庫
 const MysqlStore = mysql_session(session);
 const sessionStore = new MysqlStore({}, db);
 
 app.set("view engine", "ejs");
 
 // Top-level MiddleWare
+app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(
