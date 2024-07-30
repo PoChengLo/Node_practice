@@ -17,7 +17,10 @@
       const sendData = async (e) => {
         e.preventDefault(); // 不要用傳統的方式送出表單
         const fd = new FormData(document.form1); // 1. 包成 FormData 類型的物件
+
+        // 利用 URLSearchParams 轉換成 urlencoded 格式
         const data = new URLSearchParams(fd); // 2. 轉換成 URLSearchParams 類型的物件
+        
         try {
           const r = await fetch("/try-post-form2", {
             method: "POST",
