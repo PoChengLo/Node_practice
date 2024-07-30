@@ -3,8 +3,8 @@
 import express from "express";
 import multer from "multer";
 import upload from "./utils/upload-imgs.js";
-  
-  
+import admin2Router from "./routes/admin2.js";
+
 const app = express();
 // const upload = multer({dest: "tmp_uploads/"});
 
@@ -80,9 +80,28 @@ app.post("/try-upload", upload.single("avatar"), (req, res) => {
 });
 
 // 複數檔案
-app.post("/try-uploads", upload.array("photos",12), (req, res) => {
+app.post("/try-uploads", upload.array("photos", 12), (req, res) => {
   res.json(req.files);
 });
+
+// 路徑參數較小的放前面
+app.get("/my-params1/my-test", (req, res) => {
+  res.json({ myTest: 1 });
+});
+// 路徑參數
+app.get("/my-params1/:action/:id", (req, res) => {
+  res.json(req.params);
+});
+
+app.get(/^\/m\/09\d{2}-?\d{3}-?\d{3}$/i, (req, res) => {
+  let u = req.url.slice(3); // 前面三個字元不要
+  u = u.split("?")[0]; // ? 後面的不要(query string 忽略)
+  u.split("-").join(""); //去掉dash
+  res.send({ u });
+});
+
+// 使用某一個router，基本上是middleware 的做法
+app.use("/admins",admin2Router);
 
 // **** 靜態內容資料夾 ****
 app.use(express.static("public"));
