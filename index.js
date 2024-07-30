@@ -14,6 +14,13 @@ app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+// Top-level MiddleWare 自訂
+app.use((req, res, next) => {
+  res.local.title = "YOYO's Page";
+  next();// 往下走
+});
+
+
 //定義路由：1.接收的方式 2.路徑
 app.get("/", (req, res) => {
   // res.send(`<h1>HEEELLLLL~~~~~</h1>`);
