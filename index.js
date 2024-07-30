@@ -16,7 +16,7 @@ app.use(express.json());
 
 // Top-level MiddleWare 自訂
 app.use((req, res, next) => {
-  res.local.title = "YOYO's Page";
+  res.locals.title = "YOYO's Page";
   next();// 往下走
 });
 
