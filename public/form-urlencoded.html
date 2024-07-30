@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <form name="form1" onsubmit="sendData(event)">
+      <input type="text" name="account" /><br />
+      <input type="text" name="password" /><br />
+      <button>Submit</button>
+    </form>
+    <pre id="info"></pre>
+    <script>
+      //  sendData
+      const sendData = async (e) => {
+        e.preventDefault(); // 不要用傳統的方式送出表單
+        const fd = new FormData(document.form1); // 1. 包成 FormData 類型的物件
+        const data = new URLSearchParams(fd); // 2. 轉換成 URLSearchParams 類型的物件
+        try {
+          const r = await fetch("/try-post-form2", {
+            method: "POST",
+            // 多欄位需要多變數
+            // body: `accout=${document.form1.account.value}&password=${document.form1.password.value}`,
+
+            //以整張表送出，但是需要轉換格式
+            body: data.toString(),
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+          });
+          const result = await r.json();
+          info.innerHTML = JSON.stringify(result, null, 4);
+        } catch (ex) {
+          console.log(ex);
+        }
+      };
+    </script>
+  </body>
+</html>
