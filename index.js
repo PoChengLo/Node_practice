@@ -6,6 +6,8 @@ import session from "express-session";
 import moment from "moment-timezone";
 import upload from "./utils/upload-imgs.js";
 import admin2Router from "./routes/admin2.js";
+import "./utils/connect-mysql.js";
+
 
 const app = express();
 // const upload = multer({dest: "tmp_uploads/"});
@@ -146,6 +148,7 @@ app.get("/try-moment", (req, res) => {
   const m1 = moment();
   const m2 = moment("2024-02-29");
   const m3 = moment("2023-02-29");
+
   res.json({
     // 取得當下時間的 moment 物件
     m1: m1.format(fm),
