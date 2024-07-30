@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      const p = {
+        name: "YOYO",
+        age: "12",
+      };
+      const a = new URLSearchParams(p);
+      console.log(a.toString()); // 把 plain object 轉換成 urlencoded
+
+      const str = "a=1&b=5&a=7";
+      const urlencoded2 = new URLSearchParams(str);
+      console.log(urlencoded2.get("a"));
+      console.log(urlencoded2.getAll("a"));
+      urlencoded2.append("姓名", "小明");
+      console.log(urlencoded2 + "");
+    </script>
+  </body>
+</html>

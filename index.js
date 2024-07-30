@@ -17,15 +17,14 @@ app.use(express.json());
 // Top-level MiddleWare 自訂
 app.use((req, res, next) => {
   res.locals.title = "YOYO's Page"; // 預設網站名稱
-  res.locals.pageName = '';
-  next();// 往下走
+  res.locals.pageName = "";
+  next(); // 往下走
 });
-
 
 //定義路由：1.接收的方式 2.路徑
 app.get("/", (req, res) => {
   res.locals.title = "Home " + res.locals.title; // 預設網站名稱
-  res.locals.pageName = 'home';
+  res.locals.pageName = "home";
   // res.send(`<h1>HEEELLLLL~~~~~</h1>`);
   res.render("home", { name: "YOYO" });
 });
@@ -65,7 +64,7 @@ app.get("/try-qs", (req, res) => {
 
 app.get("/try-post-form", (req, res) => {
   res.locals.title = "Form " + res.locals.title;
-  res.locals.pageName = 'form';
+  res.locals.pageName = "form";
   res.render("try-post-form");
 });
 
@@ -116,7 +115,7 @@ app.get(/^\/m\/09\d{2}-?\d{3}-?\d{3}$/i, (req, res) => {
 app.use("/admins", admin2Router);
 
 // 測試表單送出
-app.post("/try-post-form2", (req, res) => {
+app.post("/try-post-form2", upload.none(), (req, res) => {
   res.json(req.body);
 });
 
