@@ -14,7 +14,7 @@
               <i class="fa-solid fa-backward"></i>
             </a>
           </li>
-          <% for(let i=page-5; i<=page+5; i++)if(i>=1 && i<=totalPages){ %>
+          <% for(let i=beginPage; i<=endPage; i++)if(i>=1 && i<=totalPages){ %>
           <li class="page-item <%= page===i ? 'active' : ''%>">
             <a class="page-link" href="?page=<%= i %>"><%= i %></a>
           </li>
