@@ -1,9 +1,56 @@
-<%- include('../parts/html-head') %>
-<%- include('../parts/html-navbar') %>
+<%- include('../parts/html-head') %> <%- include('../parts/html-navbar') %>
 <div class="container">
-  <h1> HELLO~~~~~~~</h1>
+  <div class="row">
+    <div class="col">
+      <nav aria-label="Page navigation example">
+        <ul class="pagination">
+          <li class="page-item">
+            <a class="page-link" href="#" aria-label="Previous">
+              <span aria-hidden="true">&laquo;</span>
+            </a>
+          </li>
+          <% for(let i=page-5; i<=page+5; i++)if(i>=1 && i<=totalPages){ %>
+
+          <li class="page-item <%= page===i ? 'active' : ''%>">
+            <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+          </li>
+          <%}%>
+          <li class="page-item">
+            <a class="page-link" href="#" aria-label="Next">
+              <span aria-hidden="true">&raquo;</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>編號</th>
+            <th>姓名</th>
+            <th>電郵</th>
+            <th>手機</th>
+            <th>生日</th>
+            <th>地址</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for(let r of rows) { %>
+          <tr>
+            <td><%= r.ab_id %></td>
+            <td><%= r.name %></td>
+            <td><%= r.email %></td>
+            <td><%= r.mobile %></td>
+            <td><%= r.birthday %></td>
+            <td><%= r.address %></td>
+          </tr>
+          <% }%>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>
-<%- include('../parts/html-script') %>
-<%- include('../parts/html-tail') %>
-
-
+<%- include('../parts/html-script') %> <%- include('../parts/html-tail') %>

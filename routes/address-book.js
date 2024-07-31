@@ -1,4 +1,5 @@
 import express from "express";
+import moment from "moment-timezone";
 import db from "./../utils/connect-mysql.js";
 
 const router = express.Router();
@@ -31,9 +32,13 @@ router.get("/", async (req, res) => {
     const sql = `SELECT * FROM address_book ORDER BY ab_id DESC
     LIMIT ${(page - 1) * perPage} , ${perPage}`;
     [rows] = await db.query(sql);
+
+    // 轉換成 JS Date 類型成展示頁面的日期格式
+    rows.forEach((r) => {r.birthday = moment(r.birthday).format("YYYY-MM-DD") });
+
   }
   // res.json({ totalRows, rows, totalPages, page });
-  res.render("address-book/list");
+  res.render("address-book/list", { totalRows, rows, totalPages, page });
 });
 
 export default router;
