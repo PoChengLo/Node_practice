@@ -7,6 +7,7 @@ import moment from "moment-timezone";
 import mysql_session from "express-mysql-session";
 import upload from "./utils/upload-imgs.js";
 import admin2Router from "./routes/admin2.js";
+import abRouter from "./routes/address-book.js"
 import db from "./utils/connect-mysql.js";
 import cors from "cors";
 
@@ -134,6 +135,7 @@ app.get(/^\/m\/09\d{2}-?\d{3}-?\d{3}$/i, (req, res) => {
 
 // 使用某一個router，基本上是middleware 的做法
 app.use("/admins", admin2Router);
+app.use("/address-book", abRouter);
 
 // 測試表單送出
 app.post("/try-post-form2", upload.none(), (req, res) => {
