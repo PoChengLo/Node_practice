@@ -1,0 +1,164 @@
+<%- include('../parts/html-head') %> <%- include('../parts/html-navbar') %>
+<div class="container">
+  <div class="row">
+    <div class="col-6">
+      <div class="card">
+        <div class="card-body">
+          <div class="card-title">
+            <form name="form1" onsubmit="sendData(event)" novalidate>
+              <div class="mb-3">
+                <label for="name" class="form-label">name</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  name="name"
+                  id="name"
+                  required
+                />
+                <div class="form-text"></div>
+              </div>
+              <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input
+                  type="email"
+                  class="form-control"
+                  name="email"
+                  id="email"
+                />
+                <div class="form-text"></div>
+              </div>
+              <div class="mb-3">
+                <label for="mobile" class="form-label">mobile</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  name="mobile"
+                  id="mobile"
+                />
+                <div class="form-text"></div>
+              </div>
+              <div class="mb-3">
+                <label for="birthday" class="form-label">birthday</label>
+                <input
+                  type="date"
+                  class="form-control"
+                  name="birthday"
+                  id="birthday"
+                />
+              </div>
+              <div class="mb-3">
+                <label for="address" class="form-label">address</label>
+                <textarea
+                  class="form-control"
+                  name="address"
+                  id="address"
+                  rows="3"
+                ></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="exampleModal"
+  tabindex="-1"
+  aria-labelledby="exampleModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Add data</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-success" role="alert">Success</div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Close
+        </button>
+        <a href="address-book" class="btn btn-primary">List</a>
+      </div>
+    </div>
+  </div>
+</div>
+<%- include('../parts/html-script') %>
+<script>
+  const nameField = document.form1.name;
+  const emailField = document.form1.email;
+  const modal = new bootstrap.Modal("#exampleModal");
+  const modalBody = document.querySelector("#exampleModal .modal-body");
+
+  function validateEmail(email) {
+    const re =
+      /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(email);
+  }
+
+  const sendData = function (e) {
+    e.preventDefault(); //不要用傳統的表單送出，使用AJAX
+
+    let isPass = true; //表單有沒有通過檢查
+
+    nameField.nextElementSibling.innerHTML = "";
+    nameField.style.border = "1px solid #ccc";
+    emailField.nextElementSibling.innerHTML = "";
+    emailField.style.border = "1px solid #ccc";
+
+    //TODO: 表單欄位的資料檢查
+    if (nameField.value.length < 2) {
+      isPass = false;
+      nameField.nextElementSibling.innerHTML = "Please enter real name";
+      nameField.style.border = "1px solid red";
+    }
+
+    if (!validateEmail(emailField.value)) {
+      isPass = false;
+      emailField.nextElementSibling.innerHTML =
+        "Please fill in the right email";
+      emailField.style.border = "1px solid red";
+    }
+
+    if (isPass) {
+      // FormData 看成沒有外觀的表單
+      const fd = new FormData(document.form1);
+
+      fetch("/address-book/api", {
+        method: "POST",
+        body: fd, //enctype: multipart/form-data
+      })
+        .then((r) => r.json())
+        .then((result) => {
+          console.log(result);
+          if (result.success) {
+            //#exampleModal .modal-body
+            modalBody.innerHTML = ` 
+            <div class="alert alert-success" role="alert">
+              Success
+            </div>`;
+          } else {
+            modalBody.innerHTML = ` 
+            <div class="alert alert-danger" role="alert">
+              A simple danger alert—check it out!
+            </div>`;
+          }
+          modal.show();
+        })
+        .catch((ex) => console.log(ex));
+    }
+  };
+</script>
+<%- include('../parts/html-tail') %>

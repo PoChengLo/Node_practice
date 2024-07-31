@@ -1,6 +1,8 @@
 import express from "express";
 import moment from "moment-timezone";
+import { z } from "zod";
 import db from "./../utils/connect-mysql.js";
+import upload from "./../utils/upload-imgs.js";
 
 const router = express.Router();
 
@@ -38,7 +40,8 @@ const getListData = async (req) => {
 
     // 轉換成 JS Date 類型成展示頁面的日期格式
     rows.forEach((r) => {
-      r.birthday = moment(r.birthday).format("YYYY-MM-DD");
+      const b = moment(r.birthday);
+      r.birthday = b.isValid() ? b.format("YYYY-MM-DD") : "";
     });
   }
 
@@ -84,10 +87,73 @@ router.get("/", async (req, res) => {
   res.render("address-book/list", data);
 });
 
+router.get("/add", async (req, res) => {
+  res.locals.title = "新增通訊錄 - " + res.locals.title;
+  res.locals.pageName = "ab-add";
+  res.render("address-book/add");
+});
+
 // **************** API *****************************
 router.get("/api", async (req, res) => {
   const data = await getListData(req);
   res.json(data);
+});
+
+router.post("/api", upload.none(), async (req, res) => {
+  // 新增資料功能 1
+  const output = {
+    success: false,
+    result: null,
+    bodyData: req.body, // 除錯用
+  };
+
+  // TODO: 欄位資料檢查
+  const schema = z.object({
+    name: z.string({message:"姓名必填"}).min(2, { message: "請輸入正確的姓名" }),
+    email: z.string().email({ message: "請輸入正確的電子郵件信箱" }),
+    mobile: z.string().regex(/^09\d{2}-?\d{3}-?\d{3}$/, {
+      message: "請輸入正確的電子郵件信箱",
+    }),
+  });
+
+  const data = { ...req.body }; // 表單資料
+  const zResult = schema.safeParse(data);
+  if (!zResult.success) {
+    output.error = zResult.error;
+    return res.json(output);
+  }
+
+  const b = moment(data.birthday);
+  if (b.isValid()) {
+    data.birthday = b.format("YYYY-MM-DD");
+  } else {
+    data.birthday = null; //  如果沒有生日，給空字串
+  }
+  data.created_at = new Date();
+  const sql2 = "INSERT INTO `address_book` SET ?";
+
+  // INSERT, UPDATE 最好用 try/catch 做錯誤處理
+  try {
+    const [result] = await db.query(sql2, [data]);
+    output.success = !!result.affectedRows;
+    output.result = result;
+  } catch (ex) {
+    output.error = ex;
+  }
+  // res.json(output);
+
+  // 傳統新增資料
+  // const sql1 = "INSERT INTO `address_book`( `name`, `email`, `mobile`,`birthday`, `address`, `created_at`) VALUES ( ?,?,?,?,?, NOW())"
+
+  // const [result] = await db.query(sql1, [
+  // req.body.name,
+  // req.body.email,
+  // req.body.mobile,
+  // req.body.birthday,
+  // req.body.address,
+  // ]);
+
+  // res.json(result);
 });
 
 export default router;
