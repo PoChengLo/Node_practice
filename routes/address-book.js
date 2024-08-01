@@ -24,7 +24,27 @@ const getListData = async (req) => {
   let keyword = req.query.keyword || "";
   if (keyword) {
     const keyword_ = db.escape("%" + keyword + "%");
-    where += ` AND (\`name\` LIKE ${keyword_} OR mobile LIKE ${keyword_} )`;
+    where += ` AND (\`name\` LIKE ${keyword_} OR mobile LIKE ${keyword_} ) `;
+  }
+
+  // 在這個日期之後出生的
+  let birth_begin = req.query.birth_begin || "";
+  if (birth_begin) {
+    const b = moment(birth_begin);
+    if (b.isValid()) {
+      const b2 = db.escape(b.format("YYYY-MM-DD"));
+      where += ` AND birthday >= ${b2} `;
+    }
+  }
+
+  // 在這個日期之前出生的
+  let birth_end = req.query.birth_end || "";
+  if (birth_end) {
+    const b = moment(birth_end);
+    if (b.isValid()) {
+      const b2 = db.escape(b.format("YYYY-MM-DD"));
+      where += ` AND birthday <= ${b2} `;
+    }
   }
 
   // 取得資料的總筆數
