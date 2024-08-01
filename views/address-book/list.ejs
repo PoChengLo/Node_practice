@@ -9,6 +9,7 @@
           placeholder="Search"
           aria-label="Search"
           name="keyword"
+          value="<%= {...query}.keyword%>"
         />
         <button class="btn btn-outline-danger" type="submit">Search</button>
       </form>
@@ -93,6 +94,8 @@
 </div>
 <%- include('../parts/html-script') %>
 <script>
+
+
   // 刪除函式
   const deleteOne = (e) => {
     e.preventDefault();
