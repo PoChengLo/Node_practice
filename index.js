@@ -4,6 +4,7 @@ import express from "express";
 import multer from "multer";
 import session from "express-session";
 import moment from "moment-timezone";
+import bcrypt from "bcrypt";
 import mysql_session from "express-mysql-session";
 import upload from "./utils/upload-imgs.js";
 import admin2Router from "./routes/admin2.js";
@@ -30,6 +31,7 @@ app.use(
     resave: false,
     secret: "030[]sdlsldmcijaqopkdqjo2=;",
     store: sessionStore,
+    
     // cookie: {
     //   maxAge: 1_800_000, // 30 分鐘 ， _ 沒有意義
     // },
@@ -40,6 +42,7 @@ app.use(
 app.use((req, res, next) => {
   res.locals.title = "YOYO's Page"; // 預設網站名稱
   res.locals.pageName = "";
+  res.locals.session = req.session.admin;
   next(); // 往下走
 });
 
@@ -184,9 +187,36 @@ app.get("/login", async (req, res) => {
   res.render("login");
 });
 app.post("/login", async (req, res) => {
-  res.json(req.body);
+  const output = {
+    success: false,
+    code: 0,
+  };
+  if (!req.body.email || !req.body.password) {
+    return res.json(output); // 欄位資料不足
+  }
+  // 1. 先判斷 email 是對的
+  const sql = `SELECT * FROM members WHERE email=? `;
+  const [rows] = await db.query(sql, [req.body.email]);
+  if (!rows.length) {
+    output.code = 400; // email 是錯的
+    return res.json(output);
+  }
+  const r = rows[0];
+  // 2. 再判斷 password 是對的
+  output.success = await bcrypt.compare(req.body.password, r.password_hash);
+  if (!output.success) output.code = 410;
+  if (output.success) {
+    // 登入的狀態記錄在 session
+    req.session.admin = {
+      member_id: r.member_id,
+      email: r.email,
+      nickname: r.nickname,
+    };
+  } else {
+    output.code = 410;
+  }
+  res.json(output);
 });
-
 
 // **** 靜態內容資料夾 ****
 app.use(express.static("public"));
