@@ -6,6 +6,15 @@ import upload from "./../utils/upload-imgs.js";
 
 const router = express.Router();
 
+
+// router 的 top-level middleware
+router.use((req, res, next) => {
+  if (!req.session.admin) { // 如果沒有登入，跳回首頁
+    return res.redirect("/login");
+  }
+  next();
+})
+
 const getListData = async (req) => {
   //每頁最多幾筆
   const perPage = 25;

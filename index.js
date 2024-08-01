@@ -31,7 +31,7 @@ app.use(
     resave: false,
     secret: "030[]sdlsldmcijaqopkdqjo2=;",
     store: sessionStore,
-    
+
     // cookie: {
     //   maxAge: 1_800_000, // 30 分鐘 ， _ 沒有意義
     // },
@@ -42,7 +42,7 @@ app.use(
 app.use((req, res, next) => {
   res.locals.title = "YOYO's Page"; // 預設網站名稱
   res.locals.pageName = "";
-  res.locals.session = req.session.admin;
+  res.locals.session = req.session;
   next(); // 往下走
 });
 
@@ -186,6 +186,7 @@ app.get("/try-db", async (req, res) => {
 app.get("/login", async (req, res) => {
   res.render("login");
 });
+
 app.post("/login", async (req, res) => {
   const output = {
     success: false,
@@ -216,6 +217,11 @@ app.post("/login", async (req, res) => {
     output.code = 410;
   }
   res.json(output);
+});
+
+app.get("/logout", async (req, res) => {
+  delete req.session.admin;
+  res.redirect("/");
 });
 
 // **** 靜態內容資料夾 ****
