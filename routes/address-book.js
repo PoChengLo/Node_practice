@@ -19,8 +19,16 @@ const getListData = async (req) => {
     return { success, redirect };
   }
 
+  let where = " WHERE 1 ";
+  // 模糊查詢 LIKE
+  let keyword = req.query.keyword || "";
+  if (keyword) {
+    const keyword_ = db.escape("%" + keyword + "%");
+    where += ` AND (\`name\` LIKE ${keyword_} OR mobile LIKE ${keyword_} )`;
+  }
+
   // 取得資料的總筆數
-  const t_sql = "SELECT COUNT(1) totalRows FROM address_book";
+  const t_sql = `SELECT COUNT(1) totalRows FROM address_book ${where}`;
   const [[{ totalRows }]] = await db.query(t_sql);
 
   // 總頁數給預設值
@@ -34,7 +42,7 @@ const getListData = async (req) => {
     }
 
     // 取得分頁資料，
-    const sql = `SELECT * FROM address_book ORDER BY ab_id DESC
+    const sql = `SELECT * FROM address_book ${where} ORDER BY ab_id DESC
     LIMIT ${(page - 1) * perPage} , ${perPage}`;
     [rows] = await db.query(sql);
 
@@ -109,7 +117,7 @@ router.get("/edit/:ab_id", async (req, res) => {
   const row = rows[0];
   const b = moment(row.birthday);
   row.birthday = b.isValid() ? b.format("YYYY-MM-DD") : "";
-  res.render("address-book/edit",row);
+  res.render("address-book/edit", row);
 });
 
 // **************** API *****************************
@@ -190,6 +198,58 @@ router.delete("/api/:ab_id", async (req, res) => {
     output.success = !!result.affectedRows;
   } else {
     output.error = "不合法的編號";
+  }
+  res.json(output);
+});
+
+router.put("/api/:ab_id", upload.none(), async (req, res) => {
+  const output = {
+    success: false,
+    ab_id: req.params.ab_id,
+    result: null,
+    bodyData: req.body, // 除錯用
+  };
+
+  const ab_id = parseInt(req.params.ab_id) || 0;
+  if (!ab_id) {
+    output.error = "不合法的編號";
+    return res.json(output);
+  }
+
+  // TODO: 欄位資料的檢查
+  const schema = z.object({
+    name: z
+      .string({ message: "姓名必填" })
+      .min(2, { message: "請輸正確的姓名" }),
+    email: z.string().email({ message: "請輸入正確的電郵" }),
+    mobile: z
+      .string()
+      .regex(/^09\d{2}-?\d{3}-?\d{3}$/, { message: "請輸入正確的手機號碼" }),
+  });
+
+  const data = { ...req.body }; // 表單資料
+  const zResult = schema.safeParse(data);
+  if (!zResult.success) {
+    output.error = zResult.error;
+    return res.json(output);
+  }
+
+  const b = moment(data.birthday);
+  if (b.isValid()) {
+    data.birthday = b.format("YYYY-MM-DD");
+  } else {
+    // 如果是無效的日期, 給空值
+    data.birthday = null;
+  }
+
+  const sql2 = "UPDATE `address_book` SET ? WHERE ab_id=?";
+  // INSERT, UPDATE 最好用 try/catch 做錯誤處理
+  try {
+    const [result] = await db.query(sql2, [data, ab_id]);
+    output.success = !!(result.affectedRows && result.changedRows);
+    output.result = result;
+  } catch (ex) {
+    output.error = ex;
   }
   res.json(output);
 });

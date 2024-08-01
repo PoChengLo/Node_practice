@@ -95,7 +95,7 @@
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
           關閉
         </button>
-        <a href="javascript: history.back()" class="btn btn-primary"
+        <a href="javascript: document.referrer ? location.href=document.referrer :history.back()" class="btn btn-primary"
           >到列表頁</a
         >
       </div>
@@ -141,8 +141,8 @@
       // FormData 的個體看成沒有外觀的表單
       const fd = new FormData(document.form1);
 
-      fetch(`/address-book/api/${ab_id}`, {
-        method: "POST",
+      fetch(`/address-book/api/<%= ab_id%>`, {
+        method: "PUT",
         body: fd, // enctype: multipart/form-data
       })
         .then((r) => r.json())

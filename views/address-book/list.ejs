@@ -2,6 +2,20 @@
 <div class="container">
   <div class="row">
     <div class="col">
+      <form class="d-flex my-3">
+        <input
+          class="form-control me-2"
+          type="search"
+          placeholder="Search"
+          aria-label="Search"
+          name="keyword"
+        />
+        <button class="btn btn-outline-danger" type="submit">Search</button>
+      </form>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
       <nav aria-label="Page navigation example">
         <ul class="pagination">
           <li class="page-item <%= page===1 ? 'disabled' : ''%>">
