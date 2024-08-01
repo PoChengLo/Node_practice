@@ -52,10 +52,14 @@
           <% for(let r of rows) { %>
           <tr>
             <td>
-              <a href="#"><i class="fa-solid fa-basket-shopping"></i></a>
+              <a href="#" onclick="deleteOne(event)"
+                ><i class="fa-solid fa-basket-shopping"></i
+              ></a>
             </td>
             <td>
-              <a href="#"><i class="fa-solid fa-person-drowning"></i></a>
+              <a href="/address-book/edit/<%= r.ab_id %>"
+                ><i class="fa-solid fa-person-drowning"></i
+              ></a>
             </td>
             <td><%= r.ab_id %></td>
             <td><%= r.name %></td>
@@ -70,4 +74,29 @@
     </div>
   </div>
 </div>
-<%- include('../parts/html-script') %> <%- include('../parts/html-tail') %>
+<%- include('../parts/html-script') %>
+<script>
+  // 刪除函式
+  const deleteOne = (e) => {
+    e.preventDefault();
+    const tr = e.target.closest("tr");
+    console.log(tr);
+
+    if (tr) {
+      const [td0, td1, td2] = tr.querySelectorAll("td");
+      console.log(td0, td1, td2);
+      if (confirm(`是否刪除編號為 ${td2.innerText} 的資料?`)) {
+        fetch(`/address-book/api/${td2.innerText}`, {
+          method: "DELETE",
+        })
+          .then((r) => r.json())
+          .then((result) => {
+            if (result.success) {
+              location.reload(); // 重載頁面
+            }
+          });
+      }
+    }
+  };
+</script>
+<%- include('../parts/html-tail') %>

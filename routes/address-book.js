@@ -93,6 +93,25 @@ router.get("/add", async (req, res) => {
   res.render("address-book/add");
 });
 
+router.get("/edit/:ab_id", async (req, res) => {
+  res.locals.title = "編輯通訊錄 - " + res.locals.title;
+  const ab_id = parseInt(req.params.ab_id) || 0;
+  if (!ab_id) {
+    // 用戶亂輸入字串 (應該要是資料 PK)
+    return res.redirect("/address-book");
+  }
+  const sql = `SELECT * FROM address_book WHERE ab_id=${ab_id}`;
+  const [rows] = await db.query(sql);
+  if (!rows.length) {
+    // 沒有該筆資料
+    return res.redirect("/address-book");
+  }
+  const row = rows[0];
+  const b = moment(row.birthday);
+  row.birthday = b.isValid() ? b.format("YYYY-MM-DD") : "";
+  res.json(row);
+});
+
 // **************** API *****************************
 router.get("/api", async (req, res) => {
   const data = await getListData(req);
@@ -109,9 +128,11 @@ router.post("/api", upload.none(), async (req, res) => {
 
   // TODO: 欄位資料檢查
   const schema = z.object({
-    name: z.string({message:"姓名必填"}).min(2, { message: "請輸入正確的姓名" }),
+    name: z
+      .string({ message: "姓名必填" })
+      .min(2, { message: "請輸入正確的姓名" }),
     email: z.string().email({ message: "請輸入正確的電子郵件信箱" }),
-    mobile: z.string().regex(/^09\d{2}-?\d{3}-?\d{3}$/, {
+    mobile: z.string(r).regex(/^09\d{2}-?\d{3}-?\d{3}$/, {
       message: "請輸入正確的電子郵件信箱",
     }),
   });
@@ -154,6 +175,23 @@ router.post("/api", upload.none(), async (req, res) => {
   // ]);
 
   // res.json(result);
+});
+
+router.delete("/api/:ab_id", async (req, res) => {
+  const output = {
+    success: false,
+    ab_id: req.params.ab_id,
+    error: "",
+  };
+  const ab_id = parseInt(req.params.ab_id) || 0;
+  if (ab_id) {
+    const sql = `DELETE FROM address_book WHERE ab_id=${ab_id}`;
+    const [result] = await db.query(sql);
+    output.success = !!result.affectedRows;
+  } else {
+    output.error = "不合法的編號";
+  }
+  res.json(output);
 });
 
 export default router;
