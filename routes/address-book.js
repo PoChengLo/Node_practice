@@ -109,7 +109,7 @@ router.get("/edit/:ab_id", async (req, res) => {
   const row = rows[0];
   const b = moment(row.birthday);
   row.birthday = b.isValid() ? b.format("YYYY-MM-DD") : "";
-  res.json(row);
+  res.render("address-book/edit",row);
 });
 
 // **************** API *****************************

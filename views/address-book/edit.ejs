@@ -6,14 +6,13 @@
         <div class="card-body">
           <h5 class="card-title">修改聯絡資訊</h5>
           <form name="form1" onsubmit="sendData(event)" novalidate>
-            <input type="hidden" name="ab_id" value="<?=$r['ab_id']?>" />
             <div class="mb-3">
               <label for="name" class="form-label">姓名</label>
               <input
                 type="text"
                 class="form-control"
                 name="name"
-                value="<?= htmlentities($r['name']) ?>"
+                value="<%= name %>"
                 id="name"
                 required
               />
@@ -25,7 +24,7 @@
                 type="email"
                 class="form-control"
                 name="email"
-                value="<?= $r['email'] ?>"
+                value="<%= email %>"
                 id="email"
               />
               <div class="form-text"></div>
@@ -36,7 +35,7 @@
                 type="text"
                 class="form-control"
                 name="mobile"
-                value="<?= $r['mobile'] ?>"
+                value="<%= mobile %>"
                 id="mobile"
               />
               <div class="form-text"></div>
@@ -47,7 +46,7 @@
                 type="date"
                 class="form-control"
                 name="birthday"
-                value="<?= $r['birthday'] ?>"
+                value="<%= birthday %>"
                 id="birthday"
               />
             </div>
@@ -59,7 +58,7 @@
                 id="address"
                 rows="3"
               >
-<?= htmlentities($r['address']) ?></textarea
+              <%= address %></textarea
               >
             </div>
             <button type="submit" class="btn btn-primary">Submit</button>
@@ -96,7 +95,9 @@
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
           關閉
         </button>
-        <a href="javascript: history.back()" class="btn btn-primary">到列表頁</a>
+        <a href="javascript: history.back()" class="btn btn-primary"
+          >到列表頁</a
+        >
       </div>
     </div>
   </div>
