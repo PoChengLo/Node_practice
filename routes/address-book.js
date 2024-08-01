@@ -80,6 +80,7 @@ const getListData = async (req) => {
     beginPage,
     endPage,
     rows,
+    query: req.query,
   };
 };
 

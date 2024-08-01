@@ -19,27 +19,30 @@
       <nav aria-label="Page navigation example">
         <ul class="pagination">
           <li class="page-item <%= page===1 ? 'disabled' : ''%>">
-            <a class="page-link" href="?page=1">
+            <a class="page-link" href="?<%= new URLSearchParams({...query, page: 1}) %>">
               <i class="fa-solid fa-backward-fast"></i>
             </a>
           </li>
           <li class="page-item <%= page===1 ? 'disabled' : ''%>">
-            <a class="page-link" href="?page=<%= page-1%>">
+            <a class="page-link" href="?<%= new URLSearchParams({...query, page: page-1}) %>">
               <i class="fa-solid fa-backward"></i>
             </a>
           </li>
-          <% for(let i=beginPage; i<=endPage; i++)if(i>=1 && i<=totalPages){ %>
+          <% for(let i=beginPage; i<=endPage; i++)if(i>=1 && i<=totalPages){
+          const qs = {...query}; 
+          qs.page = i; %>
           <li class="page-item <%= page===i ? 'active' : ''%>">
-            <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+            <a class="page-link" href="?<%= new URLSearchParams(qs) %>"
+              ><%= i %></a>
           </li>
           <%}%>
           <li class="page-item <%= page===totalPages ? 'disabled' : ''%>">
-            <a class="page-link" href="?page=<%= page+1%>">
+            <a class="page-link" href="?<%= new URLSearchParams({...query, page: page+1}) %>">
               <i class="fa-solid fa-forward"></i>
             </a>
           </li>
           <li class="page-item <%= page===totalPages ? 'disabled' : ''%>">
-            <a class="page-link" href="?page=<%=totalPages%>">
+            <a class="page-link" href="?<%= new URLSearchParams({...query, page: totalPages}) %>">
               <i class="fa-solid fa-forward-fast"></i>
             </a>
           </li>
