@@ -44,12 +44,12 @@ app.use((req, res, next) => {
 });
 
 //定義路由：1.接收的方式 2.路徑
-// app.get("/", (req, res) => {
-//   res.locals.title = "Home " + res.locals.title; // 預設網站名稱
-//   res.locals.pageName = "home";
-//   // res.send(`<h1>HEEELLLLL~~~~~</h1>`);
-//   res.render("home", { name: "YOYO" });
-// });
+app.get("/", (req, res) => {
+  res.locals.title = "Home " + res.locals.title; // 預設網站名稱
+  res.locals.pageName = "home";
+  // res.send(`<h1>HEEELLLLL~~~~~</h1>`);
+  res.render("home", { name: "YOYO" });
+});
 
 app.get("/try1", (req, res) => {
   res.json({ name: "Ted" });
@@ -185,12 +185,12 @@ app.use(express.static("public"));
 app.use("/bootstrap", express.static("node_modules/bootstrap/dist"));
 
 // 服務 react 發佈後的專案
-app.use("/", express.static("build"));
-app.get("*", (req, res) => {
-  res.send(
-    `<!doctype html><html lang="zh"><head><meta charset="utf-8"/><link rel="icon" href="/favicon.ico"/><meta name="viewport" content="width=device-width,initial-scale=1"/><meta name="theme-color" content="#000000"/><meta name="description" content="Shinder react hooks"/><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"/><title>Shinder react hooks</title><script defer="defer" src="/static/js/main.6a205622.js"></script></head><body><noscript>You need to enable JavaScript to run this app.</noscript><div id="root"></div></body></html>`
-  );
-});
+// app.use("/", express.static("build"));
+// app.get("*", (req, res) => {
+//   res.send(
+//     `<!doctype html><html lang="zh"><head><meta charset="utf-8"/><link rel="icon" href="/favicon.ico"/><meta name="viewport" content="width=device-width,initial-scale=1"/><meta name="theme-color" content="#000000"/><meta name="description" content="Shinder react hooks"/><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"/><title>Shinder react hooks</title><script defer="defer" src="/static/js/main.6a205622.js"></script></head><body><noscript>You need to enable JavaScript to run this app.</noscript><div id="root"></div></body></html>`
+//   );
+// });
 
 // **** 404 page ****
 // 404 要放在所有路由定義的後面

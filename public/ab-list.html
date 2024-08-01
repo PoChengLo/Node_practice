@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU"
+      crossorigin="anonymous"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <div id="app"></div>
+    </div>
+
+    <script>
+      let myData;
+      const app = document.querySelector("#app");
+
+      const render = () => {
+        return `
+<div class="row">
+  <div class="col">
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th>編號</th>
+          <th>姓名</th>
+          <th>電郵</th>
+          <th>手機</th>
+          <th>生日</th>
+          <th>地址</th>
+        </tr>
+      </thead>
+      <tbody>${myData.rows
+        .map((r) => {
+          return `
+        <tr>
+          <td>${r.ab_id}</td>
+          <td>${r.name}</td>
+          <td>${r.email}</td>
+          <td>${r.mobile}</td>
+          <td>${r.birthday}</td>
+          <td>${r.address}</td>
+        </tr>
+        `;
+        })
+        .join("")}</tbody>
+    </table>
+  </div>
+</div>
+        `;
+      };
+console.log(location);
+      fetch(`http://localhost:3001/address-book/api${location.search}`)
+        .then((r) => r.json())
+        .then((data) => {
+          console.log(data);
+          myData = data;
+          app.innerHTML = render();
+        });
+    </script>
+  </body>
+</html>

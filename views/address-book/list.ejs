@@ -38,6 +38,8 @@
       <table class="table">
         <thead>
           <tr>
+            <th><i class="fa-solid fa-basket-shopping"></i></th>
+            <th><i class="fa-solid fa-person-drowning"></i></th>
             <th>編號</th>
             <th>姓名</th>
             <th>電郵</th>
@@ -49,6 +51,12 @@
         <tbody>
           <% for(let r of rows) { %>
           <tr>
+            <td>
+              <a href="#"><i class="fa-solid fa-basket-shopping"></i></a>
+            </td>
+            <td>
+              <a href="#"><i class="fa-solid fa-person-drowning"></i></a>
+            </td>
             <td><%= r.ab_id %></td>
             <td><%= r.name %></td>
             <td><%= r.email %></td>
