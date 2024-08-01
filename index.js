@@ -180,6 +180,14 @@ app.get("/try-db", async (req, res) => {
   res.json({ rows, fields });
 });
 
+app.get("/login", async (req, res) => {
+  res.render("login");
+});
+app.post("/login", async (req, res) => {
+  res.json(req.body);
+});
+
+
 // **** 靜態內容資料夾 ****
 app.use(express.static("public"));
 app.use("/bootstrap", express.static("node_modules/bootstrap/dist"));
