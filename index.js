@@ -41,8 +41,10 @@ app.use(
 // Top-level MiddleWare 自訂
 app.use((req, res, next) => {
   res.locals.title = "YOYO's Page"; // 預設網站名稱
-  res.locals.pageName = "";
-  res.locals.session = req.session;
+  res.locals.pageName = ""; // 預設頁面名稱
+  res.locals.session = req.session; // session 傳給 ejs
+  res.locals.originalUrl = req.originalUrl; // 讓每個頁面都可以拿到 originalUrl
+
   next(); // 往下走
 });
 
@@ -184,6 +186,8 @@ app.get("/try-db", async (req, res) => {
 });
 
 app.get("/login", async (req, res) => {
+  res.locals.title = "登入 - " + res.locals.title;
+  res.locals.pageName = "login";
   res.render("login");
 });
 
@@ -219,9 +223,14 @@ app.post("/login", async (req, res) => {
   res.json(output);
 });
 
-app.get("/logout", async (req, res) => {
+app.get("/logout", (req, res) => {
   delete req.session.admin;
-  res.redirect("/");
+  if (req.query.u) {
+    // 指示登出後的頁面
+    res.redirect(req.query.u);
+  } else {
+    res.redirect("/");
+  }
 });
 
 // **** 靜態內容資料夾 ****

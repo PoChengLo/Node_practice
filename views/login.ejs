@@ -112,7 +112,13 @@
         .then((result) => {
           console.log(result);
           if (result.success) {
-            location.href = "/";
+            const usp = new URLSearchParams(location.search);
+            // 如果有指示登入後要前往的頁面
+            if (usp.get("u")) {
+              location.href = usp.get("u");
+            } else {
+              location.href = "/";
+            }
           } else {
             modal.show();
           }
