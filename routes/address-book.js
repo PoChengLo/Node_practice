@@ -6,14 +6,22 @@ import upload from "./../utils/upload-imgs.js";
 
 const router = express.Router();
 
-
 // router 的 top-level middleware
 router.use((req, res, next) => {
-  if (!req.session.admin) { // 如果沒有登入，跳回首頁
-    return res.redirect("/login");
+  const path = req.url.split("?")[0];
+  // 讓部分的路徑通過
+  const whiteList = ["/", "/api"]; // 設定白名單
+  if (whiteList.includes(path)) {
+    return next();
+  }
+
+  // 如果沒有登入，直接跳走
+  if (!req.session.admin) {
+    // 跳轉到登入頁，給參數提示是從哪個頁面跳過去的
+    return res.redirect(`/login?u=${req.originalUrl}`);
   }
   next();
-})
+});
 
 const getListData = async (req) => {
   //每頁最多幾筆
@@ -121,8 +129,11 @@ router.get("/", async (req, res) => {
   if (!data.success && data.redirect) {
     return res.redirect(data.redirect);
   }
-
-  res.render("address-book/list", data);
+  if (req.session.admin) {
+    res.render("address-book/list", data);
+  } else {
+    res.render("address-book/list-no-admin", data);
+  }
 });
 
 router.get("/add", async (req, res) => {

@@ -54,7 +54,6 @@
 </div>
         `;
       };
-console.log(location);
       fetch(`http://localhost:3001/address-book/api${location.search}`)
         .then((r) => r.json())
         .then((data) => {
@@ -62,6 +61,10 @@ console.log(location);
           myData = data;
           app.innerHTML = render();
         });
+      console.log(location);
     </script>
   </body>
 </html>
+
+
+<!--  -->
