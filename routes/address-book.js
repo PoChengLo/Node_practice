@@ -167,6 +167,7 @@ router.get("/api", async (req, res) => {
   res.json(data);
 });
 
+// 新增
 router.post("/api", upload.none(), async (req, res) => {
   // 新增資料功能 1
   const output = {
@@ -226,6 +227,7 @@ router.post("/api", upload.none(), async (req, res) => {
   // res.json(result);
 });
 
+// 刪除
 router.delete("/api/:ab_id", async (req, res) => {
   const output = {
     success: false,
@@ -243,6 +245,7 @@ router.delete("/api/:ab_id", async (req, res) => {
   res.json(output);
 });
 
+// 修改
 router.put("/api/:ab_id", upload.none(), async (req, res) => {
   const output = {
     success: false,
@@ -292,6 +295,57 @@ router.put("/api/:ab_id", upload.none(), async (req, res) => {
   } catch (ex) {
     output.error = ex;
   }
+  res.json(output);
+});
+
+// 加入最愛或移除
+router.post("/api/toggle-like/:ab_id", async (req, res) => {
+  const output = {
+    success: false,
+    ab_id: req.params.ab_id,
+    action: "", // "add", "remove"
+  };
+  // 沒登入就不往下做
+  if (!req.session.admin) {
+    output.error = "請登入會員";
+    return res.json(output);
+  }
+  // PK 必須是數值
+  const ab_id = parseInt(req.params.ab_id) || 0;
+  if (!ab_id) {
+    output.error = "不合法的編號";
+    return res.json(output);
+  }
+
+  // 查看有沒有這個朋友
+  // const sql0 = `SELECT ab_id FROM address_book WHERE ab_id=? `;
+  // const [rows0] = await db.query(sql0, [ab_id]);
+  // if (!rows0.length) {
+  //   output.error = "沒有這個朋友";
+  //   return res.json(output);
+  // }
+
+  // 查看是不是有記錄了
+  const sql = `SELECT * FROM ab_likes WHERE member_id=? AND ab_id=? `;
+  const [rows] = await db.query(sql, [req.session.admin.member_id, ab_id]);
+  let sql2, result;
+  if (rows.length) {
+    // 有資料的情況
+    output.action = "remove";
+    sql2 = `DELETE FROM ab_likes WHERE member_id=? AND ab_id=? `;
+  } else {
+    // 沒有資料的情況
+    output.action = "add";
+    sql2 = `INSERT INTO ab_likes (member_id, ab_id) VALUES (?, ?) `;
+  }
+
+  try {
+    [result] = await db.query(sql2, [req.session.admin.member_id, ab_id]);
+    output.success = !!result.affectedRows;
+  } catch (ex) {
+    output.error = "沒有這個朋友";
+  }
+
   res.json(output);
 });
 
