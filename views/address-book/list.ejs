@@ -1,4 +1,24 @@
 <%- include('../parts/html-head') %> <%- include('../parts/html-navbar') %>
+
+<style>
+  .hearts {
+    display: inline-block;
+    color: red;
+    cursor: pointer;
+  }
+  .hearts .fa-solid.fa-heart-pulse {
+    display: none;
+  }
+  .hearts.active .fa-solid.fa-heart-pulse {
+    display: inline-block;
+  }
+  .hearts .fa-regular.fa-heart {
+    display: inline-block;
+  }
+  .hearts.active .fa-regular.fa-heart {
+    display: none;
+  }
+</style>
 <div class="container">
   <div class="row">
     <div class="col">
@@ -20,30 +40,42 @@
       <nav aria-label="Page navigation example">
         <ul class="pagination">
           <li class="page-item <%= page===1 ? 'disabled' : ''%>">
-            <a class="page-link" href="?<%= new URLSearchParams({...query, page: 1}) %>">
+            <a
+              class="page-link"
+              href="?<%= new URLSearchParams({...query, page: 1}) %>"
+            >
               <i class="fa-solid fa-backward-fast"></i>
             </a>
           </li>
           <li class="page-item <%= page===1 ? 'disabled' : ''%>">
-            <a class="page-link" href="?<%= new URLSearchParams({...query, page: page-1}) %>">
+            <a
+              class="page-link"
+              href="?<%= new URLSearchParams({...query, page: page-1}) %>"
+            >
               <i class="fa-solid fa-backward"></i>
             </a>
           </li>
           <% for(let i=beginPage; i<=endPage; i++)if(i>=1 && i<=totalPages){
-          const qs = {...query}; 
-          qs.page = i; %>
+          const qs = {...query}; qs.page = i; %>
           <li class="page-item <%= page===i ? 'active' : ''%>">
             <a class="page-link" href="?<%= new URLSearchParams(qs) %>"
-              ><%= i %></a>
+              ><%= i %></a
+            >
           </li>
           <%}%>
           <li class="page-item <%= page===totalPages ? 'disabled' : ''%>">
-            <a class="page-link" href="?<%= new URLSearchParams({...query, page: page+1}) %>">
+            <a
+              class="page-link"
+              href="?<%= new URLSearchParams({...query, page: page+1}) %>"
+            >
               <i class="fa-solid fa-forward"></i>
             </a>
           </li>
           <li class="page-item <%= page===totalPages ? 'disabled' : ''%>">
-            <a class="page-link" href="?<%= new URLSearchParams({...query, page: totalPages}) %>">
+            <a
+              class="page-link"
+              href="?<%= new URLSearchParams({...query, page: totalPages}) %>"
+            >
               <i class="fa-solid fa-forward-fast"></i>
             </a>
           </li>
@@ -59,6 +91,11 @@
             <th><i class="fa-solid fa-group-arrows-rotate"></i></th>
             <th><i class="fa-solid fa-person-drowning"></i></th>
             <th>編號</th>
+            <th>
+              <div>
+                <i class="fa-solid fa-heart-pulse"></i>
+              </div>
+            </th>
             <th>姓名</th>
             <th>電郵</th>
             <th>手機</th>
@@ -80,6 +117,15 @@
               ></a>
             </td>
             <td><%= r.ab_id %></td>
+            <td>
+              <div
+                class="hearts <%= r.like_id ? 'active' : '' %>"
+                onclick="toggleLike(event, <%= r.ab_id %>)"
+              >
+                <i class="fa-solid fa-heart-pulse"></i>
+                <i class="fa-regular fa-heart"></i>
+              </div>
+            </td>
             <td><%= r.name %></td>
             <td><%= r.email %></td>
             <td><%= r.mobile %></td>
@@ -94,8 +140,7 @@
 </div>
 <%- include('../parts/html-script') %>
 <script>
-
-
+  const isLogin = <%= !!session.admin %>;
   // 刪除函式
   const deleteOne = (e) => {
     e.preventDefault();
@@ -117,6 +162,19 @@
           });
       }
     }
+  };
+  const toggleLike = (e, ab_id) => {
+    const ct = e.currentTarget;
+    console.log({ e, ab_id });
+    fetch(`/address-book/api/toggle-like/${ab_id}`, {
+      method: "POST",
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.success) {
+          ct.classList.toggle("active");
+        }
+      });
   };
 </script>
 <%- include('../parts/html-tail') %>

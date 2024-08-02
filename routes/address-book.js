@@ -24,6 +24,14 @@ router.use((req, res, next) => {
 });
 
 const getListData = async (req) => {
+  /*
+  SELECT ab.*, l.like_id FROM `address_book` ab
+  LEFT JOIN (
+  SELECT * FROM ab_likes WHERE member_id=3
+  ) l ON ab.ab_id=l.ab_id
+  ORDER BY ab.ab_id DESC
+  */
+
   //每頁最多幾筆
   const perPage = 25;
   let redirect = ""; // 沒有設定值，就要跳轉頁面
@@ -41,7 +49,7 @@ const getListData = async (req) => {
   let keyword = req.query.keyword || "";
   if (keyword) {
     const keyword_ = db.escape("%" + keyword + "%");
-    where += ` AND (\`name\` LIKE ${keyword_} OR mobile LIKE ${keyword_} ) `;
+    where += ` AND (ab.name LIKE ${keyword_} OR ab.mobile LIKE ${keyword_}) `;
   }
 
   // 在這個日期之後出生的
@@ -50,7 +58,7 @@ const getListData = async (req) => {
     const b = moment(birth_begin);
     if (b.isValid()) {
       const b2 = db.escape(b.format("YYYY-MM-DD"));
-      where += ` AND birthday >= ${b2} `;
+      where += ` AND ab.birthday >= '${b2}' `;
     }
   }
 
@@ -65,7 +73,7 @@ const getListData = async (req) => {
   }
 
   // 取得資料的總筆數
-  const t_sql = `SELECT COUNT(1) totalRows FROM address_book ${where}`;
+  const t_sql = `SELECT COUNT(1) totalRows FROM address_book ab ${where}`;
   const [[{ totalRows }]] = await db.query(t_sql);
 
   // 總頁數給預設值
@@ -79,8 +87,22 @@ const getListData = async (req) => {
     }
 
     // 取得分頁資料，
-    const sql = `SELECT * FROM address_book ${where} ORDER BY ab_id DESC
-    LIMIT ${(page - 1) * perPage} , ${perPage}`;
+    // req.session.admin?.member_id
+    let sql;
+    if (req.session.admin) {
+      sql = `SELECT ab.*, l.like_id FROM address_book ab 
+        LEFT JOIN (
+          SELECT * FROM ab_likes WHERE member_id=${req.session.admin.member_id}
+        ) l ON ab.ab_id=l.ab_id
+        ${where} 
+        ORDER BY ab.ab_id DESC
+          LIMIT ${(page - 1) * perPage}, ${perPage}`;
+    } else {
+      sql = `SELECT ab.* FROM address_book ab 
+        ${where} 
+        ORDER BY ab.ab_id DESC
+          LIMIT ${(page - 1) * perPage}, ${perPage}`;
+    }
     [rows] = await db.query(sql);
 
     // 轉換成 JS Date 類型成展示頁面的日期格式
