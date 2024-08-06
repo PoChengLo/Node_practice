@@ -233,6 +233,26 @@ app.get("/logout", (req, res) => {
   }
 });
 
+app.get("/cate1", async (req, res) => {
+  const [rows] = await db.query("SELECT * FROM categories");
+
+  const level1 = [];
+  for (let i of rows) {
+    if (!i.parent_id) {
+      level1.push(i);
+    }
+  }
+  for (let lv1 of level1) {
+    for (let i of rows) {
+      if (lv1.category_id === i.parent_id) {
+        lv1.children = lv1.children || []; // 如果沒有值就設定陣列給它
+        lv1.children.push(i);
+      }
+    }
+  }
+  res.json(level1);
+});
+
 // **** 靜態內容資料夾 ****
 app.use(express.static("public"));
 app.use("/bootstrap", express.static("node_modules/bootstrap/dist"));
