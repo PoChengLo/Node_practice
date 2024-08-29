@@ -7,6 +7,15 @@ import upload from "./../utils/upload-imgs.js";
 const router = express.Router();
 
 // router 的 top-level middleware
+
+// 模擬網路延遲的狀況
+router.use((req, res, next) => {
+  const ms = 100 + Math.floor(Math.random() * 2000);
+  setTimeout(() => {
+    next();
+  }, ms);
+});
+
 router.use((req, res, next) => {
   const path = req.url.split("?")[0];
   // 讓部分的路徑通過

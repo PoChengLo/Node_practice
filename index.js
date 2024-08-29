@@ -253,6 +253,22 @@ app.get("/cate1", async (req, res) => {
   res.json(level1);
 });
 
+app.get("/try-sse", (req, res) => {
+  let id = 30;
+
+  res.writeHead(200, {
+    "Content-type": "text/event-stream; charset=utf8",
+    "Cache-Control": "no-cache",
+    Connection: "keep-alive",
+  });
+
+  setInterval(() => {
+    const now = new Date();
+    res.write(`id: ${id++}\n`);
+    res.write(`data: ${now.toLocaleString()}\n\n`);
+  }, 2600);
+});
+
 // **** 靜態內容資料夾 ****
 app.use(express.static("public"));
 app.use("/bootstrap", express.static("node_modules/bootstrap/dist"));
