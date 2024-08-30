@@ -8,45 +8,46 @@ const router = express.Router();
 
 // router 的 top-level middleware
 
-// 模擬網路延遲的狀況
+/*
+// ***** 模擬網路延遲的狀況
 router.use((req, res, next) => {
-  const ms = 100 + Math.floor(Math.random() * 2000);
+  const ms = 100 + Math.floor(Math.random()*2000);
   setTimeout(() => {
     next();
   }, ms);
 });
+*/
 
+/*
 router.use((req, res, next) => {
   const path = req.url.split("?")[0];
-  // 讓部分的路徑通過
+  // 讓部份的路徑通過
   const whiteList = ["/", "/api"]; // 設定白名單
   if (whiteList.includes(path)) {
     return next();
   }
 
-  // 如果沒有登入，直接跳走
+  // 如果沒有登入 admin 就直接跳走
   if (!req.session.admin) {
-    // 跳轉到登入頁，給參數提示是從哪個頁面跳過去的
+    // 跳轉到登入頁, 給參數提示是從哪個頁面跳過去的
     return res.redirect(`/login?u=${req.originalUrl}`);
   }
   next();
 });
+*/
 
 const getListData = async (req) => {
   /*
-  SELECT ab.*, l.like_id FROM `address_book` ab
-  LEFT JOIN (
+SELECT ab.*, l.like_id FROM `address_book` ab
+LEFT JOIN (
   SELECT * FROM ab_likes WHERE member_id=3
-  ) l ON ab.ab_id=l.ab_id
-  ORDER BY ab.ab_id DESC
+) l ON ab.ab_id=l.ab_id
+ORDER BY ab.ab_id DESC
   */
-
-  //每頁最多幾筆
-  const perPage = 25;
-  let redirect = ""; // 沒有設定值，就要跳轉頁面
+  const perPage = 20; // 每頁最多有幾筆
+  let redirect = ""; // 若有設定值, 就要跳轉頁面
   let success = false; // 有沒有成功取得資料
-
-  // query string ，用戶要看第幾頁
+  // 用戶要看第幾頁
   let page = parseInt(req.query.page) || 1;
   if (page < 1) {
     redirect = "?page=1";
@@ -54,7 +55,7 @@ const getListData = async (req) => {
   }
 
   let where = " WHERE 1 ";
-  // 模糊查詢 LIKE
+  // 關鍵字查尋
   let keyword = req.query.keyword || "";
   if (keyword) {
     const keyword_ = db.escape("%" + keyword + "%");
@@ -66,7 +67,7 @@ const getListData = async (req) => {
   if (birth_begin) {
     const b = moment(birth_begin);
     if (b.isValid()) {
-      const b2 = db.escape(b.format("YYYY-MM-DD"));
+      const b2 = b.format("YYYY-MM-DD");
       where += ` AND ab.birthday >= '${b2}' `;
     }
   }
@@ -76,16 +77,17 @@ const getListData = async (req) => {
   if (birth_end) {
     const b = moment(birth_end);
     if (b.isValid()) {
-      const b2 = db.escape(b.format("YYYY-MM-DD"));
-      where += ` AND birthday <= ${b2} `;
+      const b2 = b.format("YYYY-MM-DD");
+      where += ` AND ab.birthday <= '${b2}' `;
     }
   }
 
   // 取得資料的總筆數
   const t_sql = `SELECT COUNT(1) totalRows FROM address_book ab ${where}`;
+
   const [[{ totalRows }]] = await db.query(t_sql);
 
-  // 總頁數給預設值
+  // 先給預設值
   let totalPages = 0;
   let rows = [];
   if (totalRows) {
@@ -95,7 +97,7 @@ const getListData = async (req) => {
       return { success, redirect };
     }
 
-    // 取得分頁資料，
+    // 取得分頁資料
     // req.session.admin?.member_id
     let sql;
     if (req.session.admin) {
@@ -112,18 +114,18 @@ const getListData = async (req) => {
         ORDER BY ab.ab_id DESC
           LIMIT ${(page - 1) * perPage}, ${perPage}`;
     }
+
     [rows] = await db.query(sql);
 
-    // 轉換成 JS Date 類型成展示頁面的日期格式
     rows.forEach((r) => {
+      // 轉換 JS Date 類型成我要的日期格式
       const b = moment(r.birthday);
       r.birthday = b.isValid() ? b.format("YYYY-MM-DD") : "";
     });
   }
-
-  // 處理頁碼 start
+  /* ***** 處理頁碼 begin ****** */
   const prevNum = 5; // 當頁按鈕前面最多幾個按鈕
-  let beginPage, endPage; // 起始的頁碼，結束的頁碼
+  let beginPage, endPage; // 起始的頁碼, 結束的頁碼
   if (totalPages <= prevNum * 2 + 1) {
     beginPage = 1;
     endPage = totalPages;
@@ -137,7 +139,8 @@ const getListData = async (req) => {
     beginPage = page - prevNum;
     endPage = page + prevNum;
   }
-  // 處理頁碼 end
+
+  /* ***** 處理頁碼 end ****** */
   success = true;
   return {
     totalRows,
@@ -166,7 +169,6 @@ router.get("/", async (req, res) => {
     res.render("address-book/list-no-admin", data);
   }
 });
-
 router.get("/add", async (req, res) => {
   res.locals.title = "新增通訊錄 - " + res.locals.title;
   res.locals.pageName = "ab-add";
@@ -198,24 +200,22 @@ router.get("/api", async (req, res) => {
   res.json(data);
 });
 
-// 新增
+// 處理新增的資料項目
 router.post("/api", upload.none(), async (req, res) => {
-  // 新增資料功能 1
   const output = {
     success: false,
     result: null,
     bodyData: req.body, // 除錯用
   };
-
-  // TODO: 欄位資料檢查
+  // TODO: 欄位資料的檢查
   const schema = z.object({
     name: z
       .string({ message: "姓名必填" })
-      .min(2, { message: "請輸入正確的姓名" }),
-    email: z.string().email({ message: "請輸入正確的電子郵件信箱" }),
-    mobile: z.string(r).regex(/^09\d{2}-?\d{3}-?\d{3}$/, {
-      message: "請輸入正確的電子郵件信箱",
-    }),
+      .min(2, { message: "請輸正確的姓名" }),
+    email: z.string().email({ message: "請輸入正確的電郵" }),
+    mobile: z
+      .string()
+      .regex(/^09\d{2}-?\d{3}-?\d{3}$/, { message: "請輸入正確的手機號碼" }),
   });
 
   const data = { ...req.body }; // 表單資料
@@ -229,11 +229,12 @@ router.post("/api", upload.none(), async (req, res) => {
   if (b.isValid()) {
     data.birthday = b.format("YYYY-MM-DD");
   } else {
-    data.birthday = null; //  如果沒有生日，給空字串
+    // 如果是無效的日期, 給空值
+    data.birthday = null;
   }
+
   data.created_at = new Date();
   const sql2 = "INSERT INTO `address_book` SET ?";
-
   // INSERT, UPDATE 最好用 try/catch 做錯誤處理
   try {
     const [result] = await db.query(sql2, [data]);
@@ -242,23 +243,60 @@ router.post("/api", upload.none(), async (req, res) => {
   } catch (ex) {
     output.error = ex;
   }
-  // res.json(output);
+  res.json(output);
+  /*
+  const sql1 =
+    "INSERT INTO `address_book`(`name`, `email`, `mobile`, `birthday`, `address`, `created_at`) VALUES (?, ?, ?, ?, ?, NOW())";
 
-  // 傳統新增資料
-  // const sql1 = "INSERT INTO `address_book`( `name`, `email`, `mobile`,`birthday`, `address`, `created_at`) VALUES ( ?,?,?,?,?, NOW())"
-
-  // const [result] = await db.query(sql1, [
-  // req.body.name,
-  // req.body.email,
-  // req.body.mobile,
-  // req.body.birthday,
-  // req.body.address,
-  // ]);
-
-  // res.json(result);
+  const [result] = await db.query(sql1, [
+    req.body.name,
+    req.body.email,
+    req.body.mobile,
+    req.body.birthday,
+    req.body.address,
+  ]);
+  */
+  /*
+{
+    "fieldCount": 0,
+    "affectedRows": 1,
+    "insertId": 1010,
+    "info": "",
+    "serverStatus": 2,
+    "warningStatus": 0,
+    "changedRows": 0
+}
+  */
 });
 
-// 刪除
+// 讀取單筆資料的 API
+router.get("/api/:ab_id", async (req, res) => {
+  const output = {
+    success: false,
+    data: {},
+    error: "",
+  };
+
+  const ab_id = parseInt(req.params.ab_id) || 0;
+  if (!ab_id) {
+    // 用戶亂輸入字串 (應該要是資料 PK)
+    output.error = "PK 不正確";
+    return res.json(output);
+  }
+  const sql = `SELECT * FROM address_book WHERE ab_id=${ab_id}`;
+  const [rows] = await db.query(sql);
+  if (!rows.length) {
+    output.error = "沒有該筆資料";
+    return res.json(output);
+  }
+  const row = rows[0];
+  const b = moment(row.birthday);
+  row.birthday = b.isValid() ? b.format("YYYY-MM-DD") : "";
+  output.data = row;
+  output.success = true; // 表示有正常拿到資料
+  return res.json(output);
+});
+
 router.delete("/api/:ab_id", async (req, res) => {
   const output = {
     success: false,
@@ -267,16 +305,20 @@ router.delete("/api/:ab_id", async (req, res) => {
   };
   const ab_id = parseInt(req.params.ab_id) || 0;
   if (ab_id) {
-    const sql = `DELETE FROM address_book WHERE ab_id=${ab_id}`;
-    const [result] = await db.query(sql);
-    output.success = !!result.affectedRows;
+    // 除了 "讀取" 之外, 都應該要做錯誤處理
+    try {
+      const sql = `DELETE FROM address_book WHERE ab_id=${ab_id}`;
+      const [result] = await db.query(sql);
+      output.success = !!result.affectedRows;
+    } catch (ex) {
+      output.error = "可能因為外鍵限制, 無法刪除資料";
+    }
   } else {
     output.error = "不合法的編號";
   }
   res.json(output);
 });
 
-// 修改
 router.put("/api/:ab_id", upload.none(), async (req, res) => {
   const output = {
     success: false,
@@ -329,36 +371,41 @@ router.put("/api/:ab_id", upload.none(), async (req, res) => {
   res.json(output);
 });
 
-// 加入最愛或移除
+// 加入最愛或者移除
 router.post("/api/toggle-like/:ab_id", async (req, res) => {
   const output = {
     success: false,
     ab_id: req.params.ab_id,
     action: "", // "add", "remove"
   };
+
   // 沒登入就不往下做
   if (!req.session.admin) {
     output.error = "請登入會員";
     return res.json(output);
   }
+
   // PK 必須是數值
   const ab_id = parseInt(req.params.ab_id) || 0;
   if (!ab_id) {
     output.error = "不合法的編號";
     return res.json(output);
   }
+  /*
+  // 1. 查看有沒有這個朋友
+  const sql0 = `SELECT ab_id FROM address_book WHERE ab_id=? `;
+  const [rows0] = await db.query(sql0, [ab_id]);
 
-  // 查看有沒有這個朋友
-  // const sql0 = `SELECT ab_id FROM address_book WHERE ab_id=? `;
-  // const [rows0] = await db.query(sql0, [ab_id]);
-  // if (!rows0.length) {
-  //   output.error = "沒有這個朋友";
-  //   return res.json(output);
-  // }
+  if(!rows0.length){
+    output.error = "沒有這個朋友";
+    return res.json(output);
+  }
+  */
 
-  // 查看是不是有記錄了
+  // 2. 查看是不是有記錄了
   const sql = `SELECT * FROM ab_likes WHERE member_id=? AND ab_id=? `;
   const [rows] = await db.query(sql, [req.session.admin.member_id, ab_id]);
+
   let sql2, result;
   if (rows.length) {
     // 有資料的情況
@@ -369,7 +416,6 @@ router.post("/api/toggle-like/:ab_id", async (req, res) => {
     output.action = "add";
     sql2 = `INSERT INTO ab_likes (member_id, ab_id) VALUES (?, ?) `;
   }
-
   try {
     [result] = await db.query(sql2, [req.session.admin.member_id, ab_id]);
     output.success = !!result.affectedRows;
@@ -379,5 +425,4 @@ router.post("/api/toggle-like/:ab_id", async (req, res) => {
 
   res.json(output);
 });
-
 export default router;
